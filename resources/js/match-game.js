@@ -5,12 +5,30 @@ var MatchGame = {};
   Renders a 4x4 board of cards.
 */
 
+$(document).ready(function () {
+  MatchGame.renderCards(MatchGame.generateCardValues(), $('#game'));
+})
+
 /*
   Generates and returns an array of matching card values.
  */
 
 MatchGame.generateCardValues = function () {
-  return [1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8];
+  var numbers = [];
+  var retval = [];
+
+  for(i = 1; i < 9; i++) {
+    numbers.push(i);
+    numbers.push(i);
+  }
+
+  while(numbers.length > 0) {
+    var r = Math.floor(Math.random() * numbers.length);
+    retval.push(numbers[r]);
+    numbers.splice(r, 1);
+  }
+
+  return retval;
 };
 
 /*
@@ -19,11 +37,27 @@ MatchGame.generateCardValues = function () {
 */
 
 MatchGame.renderCards = function(cardValues, $game) {
+  var colors = ['hsl(25, 85%, 65%)',
+                'hsl(55, 85%, 65%)',
+                'hsl(90, 85%, 65%)',
+                'hsl(160, 85%, 65%)',
+                'hsl(220, 85%, 65%)',
+                'hsl(265, 85%, 65%)',
+                'hsl(310, 85%, 65%)',
+                'hsl(360, 85%, 65%)'
+                ];
   $game.empty();
   $game.data('flippedCards', []);
-  cardValues.forEach(function (card) {
-    var $card = $('<div class="card" data-color="gray" data-value="' + card + '"></div>');
+  for(i = 0; i < cardValues.length; i++) {
+    var $card = $('<div class="card col-xs-3"></div>');
+    $card.data('value', cardValues[i]);
+    $card.data('isFlipped', false);
+    $card.data('color', colors[cardValues[i] - 1]);
     $game.append($card);
+  }
+
+  $('.card').click(function() {
+    MatchGame.flipCard($(this), $('#game'));
   });
 };
 
@@ -52,7 +86,7 @@ MatchGame.flipCard = function($card, $game) {
   $card.text($card.data('value'));
 
   /* set flipped background color  */
-  $card.css('background-color', 'blue');
+  $card.css('background-color', $card.data('color'));
 
   if(flippedCards.length === 1) {
     /* now there are two cards beeing flipped */
@@ -63,14 +97,16 @@ MatchGame.flipCard = function($card, $game) {
     if($card1.data('value') === $card2.data('value')) {
       $card1.css('background-color', 'rgb(153, 153, 153)');
       $card2.css('background-color', 'rgb(153, 153, 153)');
+      flippedCards.length = 0;
     } else {
       /* after a timeout, unflip both cards, unless they are equal value */
       setTimeout(function () {
         var $card1 = flippedCards[0];
         var $card2 = flippedCards[1];
-        $card1.text('').css('background-color', 'rgb(32, 64, 86)');
-        $card2.text('').css('background-color', 'rgb(32, 64, 86)');
-      }, 1500);
+        $card1.text('').css('background-color', 'rgb(32, 64, 86)').data('isFlipped', false);
+        $card2.text('').css('background-color', 'rgb(32, 64, 86)').data('isFlipped', false);
+        flippedCards.length = 0;
+      }, 500);
 
     }
 
