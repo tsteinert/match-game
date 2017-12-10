@@ -20,6 +20,7 @@ MatchGame.generateCardValues = function () {
 
 MatchGame.renderCards = function(cardValues, $game) {
   $game.empty();
+  $game.data('flippedCards', []);
   cardValues.forEach(function (card) {
     var $card = $('<div class="card" data-color="gray" data-value="' + card + '"></div>');
     $game.append($card);
@@ -32,12 +33,50 @@ MatchGame.renderCards = function(cardValues, $game) {
  */
 
 MatchGame.flipCard = function($card, $game) {
-  console.log("flipCard called");
+  // debugger;
+  /* if flipped card is flippes again, ignore it */
+  if ($card.data('isFlipped')) {
+    return;
+  }
+
+  /* if already two cards are flipped, ignore further flip */
+  var flippedCards = $game.data('flippedCards');
+  if(flippedCards.length === 2) {
+    return;
+  }
+
+  /* save flipped status for the card */
+  $card.data('isFlipped', true);
+
+  /* store card value into child node of card so it can be displayed */
   $card.text($card.data('value'));
+
+  /* set flipped background color  */
   $card.css('background-color', 'blue');
-  $card.text('');
-  setTimeout(function () {
-    console.log($card);
-    $card.text('');
-  }, 2500);
+
+  if(flippedCards.length === 1) {
+    /* now there are two cards beeing flipped */
+    flippedCards.push($card);
+
+    var $card1 = flippedCards[0];
+    var $card2 = flippedCards[1];
+    if($card1.data('value') === $card2.data('value')) {
+      $card1.css('background-color', 'rgb(153, 153, 153)');
+      $card2.css('background-color', 'rgb(153, 153, 153)');
+    } else {
+      /* after a timeout, unflip both cards, unless they are equal value */
+      setTimeout(function () {
+        var $card1 = flippedCards[0];
+        var $card2 = flippedCards[1];
+        $card1.text('').css('background-color', 'rgb(32, 64, 86)');
+        $card2.text('').css('background-color', 'rgb(32, 64, 86)');
+      }, 1500);
+
+    }
+
+  } else if(flippedCards.length === 0) {
+    /* first card thats flipped */
+    flippedCards.push($card);
+
+  }
 };
