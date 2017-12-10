@@ -4,6 +4,10 @@ html {
   background-color: rgb(255,242,242);
 }
 
+body {
+  padding-top: 5.25rem;
+}
+
 h1 {
   font-weight: bold;
   font-size: 2.5rem;
